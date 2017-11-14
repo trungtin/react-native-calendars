@@ -36,6 +36,8 @@ class CalendarListItem extends Component {
           firstDay={this.props.firstDay}
           monthFormat={this.props.monthFormat}
           disabledByDefault={this.props.disabledByDefault}
+          renderMonthName={this.props.renderMonthName}
+          getCalendarStyle={this.props.getCalendarStyle}
         />);
     } else {
       const text = row.toString();

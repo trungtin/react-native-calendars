@@ -63,7 +63,9 @@ class Calendar extends Component {
     //Hide day names. Default = false
     hideDayNames: PropTypes.bool,
     //Disable days by default. Default = false
-    disabledByDefault: PropTypes.bool
+    disabledByDefault: PropTypes.bool,
+    //Render the display month name
+    renderMonthName: PropTypes.func,
   };
 
   constructor(props) {
@@ -217,7 +219,7 @@ class Calendar extends Component {
       }
     }
     return (
-      <View style={[this.style.container, this.props.style]}>
+      <View style={[this.style.container, this.props.style, this.props.getCalendarStyle && this.props.getCalendarStyle(current.toDate())]}>
         <CalendarHeader
           theme={this.props.theme}
           hideArrows={this.props.hideArrows}
@@ -226,6 +228,7 @@ class Calendar extends Component {
           showIndicator={indicator}
           firstDay={this.props.firstDay}
           renderArrow={this.props.renderArrow}
+          renderMonthName={this.props.renderMonthName}
           monthFormat={this.props.monthFormat}
           hideDayNames={this.props.hideDayNames}
         />
