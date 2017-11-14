@@ -11,7 +11,30 @@ import dateutils from '../dateutils';
 import Calendar from '../calendar';
 import CalendarListItem from './item';
 
-const calendarHeight = 360;
+// const calendarHeight = 360;
+const DEFAULT_WEEK_HEIGHT = 48;
+const getCalendarHeight = (date, firstDay) => {
+  const day = date.getDay(); // Set Sunday from 0 to 7 because 
+  const previousMonthDaysFill = day < firstDay ? 7 - (firstDay - day) : day - firstDay;
+  const daysInMonth = XDate.getDaysInMonth(date.getFullYear(), date.getMonth());
+  const displayWeeks = Math.floor((daysInMonth + previousMonthDaysFill) / 7);
+  return displayWeeks * DEFAULT_WEEK_HEIGHT; // height per week
+};
+
+const cachedLayout = [];
+const indexByMonthYear = {};
+const getSequentialLayoutByRows = (index, date, firstDay) => {
+  if (cachedLayout[index]) return cachedLayout[index];
+  const length = getCalendarHeight(date, firstDay);
+  let offset;
+  if (index === 0) {
+    offset = 0;
+  } else {
+    offset = cachedLayout[index - 1] ? (cachedLayout[index - 1].offset + cachedLayout[index - 1].length) : (index * 230);
+  }
+  return { index, length, offset: offset };
+};
+
 class CalendarList extends Component {
   static propTypes = {
     ...Calendar.propTypes,
@@ -35,7 +58,10 @@ class CalendarList extends Component {
     const texts = [];
     const date = parseDate(props.current) || XDate();
     for (let i = 0; i <= this.pastScrollRange + this.futureScrollRange; i++) {
-      const text = date.clone().addMonths(i - this.pastScrollRange).toString('MMM yyyy');
+      const month = date.clone().addMonths(i - this.pastScrollRange);
+      const text = month.toString('MMM yyyy');
+      cachedLayout[i] = getSequentialLayoutByRows(i, date, props.firstDay);
+      indexByMonthYear[month.toString('yyyyMM')] = i;
       rows.push(text);
       texts.push(text);
     }
@@ -60,18 +86,28 @@ class CalendarList extends Component {
 
   scrollToDay(d, offset, animated) {
     const day = parseDate(d);
-    const diffMonths = Math.round(this.state.openDate.clone().setDate(1).diffMonths(day.clone().setDate(1)));
-    let scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight) + (offset || 0);
-    let week = 0;
-    const days = dateutils.page(day, this.props.firstDay);
-    for (let i = 0; i < days.length; i++) {
-      week = Math.floor(i / 7);
-      if (dateutils.sameDate(days[i], day)) {
-        scrollAmount += 46 * week;
-        break;
-      }
+    // const diffMonths = Math.round(this.state.openDate.clone().setDate(1).diffMonths(day.clone().setDate(1)));
+    // const calendarHeight = getCalendarHeight(day, this.props.firstDay);
+    // let scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight) + (offset || 0);
+    // let week = 0;
+    // const days = dateutils.page(day, this.props.firstDay);
+    // for (let i = 0; i < days.length; i++) {
+    //   week = Math.floor(i / 7);
+    //   if (dateutils.sameDate(days[i], day)) {
+    //     scrollAmount += DEFAULT_WEEK_HEIGHT * week;
+    //     break;
+    //   }
+    // }
+    const indexInCache = indexByMonthYear[day.toString('yyyyMM')];
+    if (indexInCache) {
+      const { offset } = cachedLayout[indexInCache];
+      const startOfMonthDay = day.clone().setDate(1).getDay();
+      const offsetDay = 7 - ((startOfMonthDay - this.props.firstDay) || 7); // Day count till first day of first full week
+      const date = day.getDate();
+      const diffWeeks = Math.ceil((date - 1 - offsetDay) / 7);
+      const scrollAmount = offset + diffWeeks * DEFAULT_WEEK_HEIGHT;
+      this.listView.scrollToOffset({ offset: scrollAmount, animated });
     }
-    this.listView.scrollToOffset({offset: scrollAmount, animated});
   }
 
   scrollToMonth(m) {
@@ -79,6 +115,7 @@ class CalendarList extends Component {
     const scrollTo = month || this.state.openDate;
     let diffMonths = this.state.openDate.diffMonths(scrollTo);
     diffMonths = diffMonths < 0 ? Math.ceil(diffMonths) : Math.floor(diffMonths);
+    const calendarHeight = getCalendarHeight(month, this.props.firstDay);
     const scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight);
     //console.log(month, this.state.openDate);
     //console.log(scrollAmount, diffMonths);
@@ -141,12 +178,14 @@ class CalendarList extends Component {
     });
   }
 
-  renderCalendar({item}) {
+  renderCalendar = ({item, index}) => {
+    const calendarHeight = cachedLayout[index].length || 0;
     return (<CalendarListItem item={item} calendarHeight={calendarHeight} {...this.props} />);
   }
 
-  getItemLayout(data, index) {
-    return {length: calendarHeight, offset: calendarHeight * index, index};
+  getItemLayout = (data, index) => {
+    if (index === -1) return { offset: 0, length: 0, index };
+    return cachedLayout[index];
   }
 
   getMonthIndex(month) {
