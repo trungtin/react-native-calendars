@@ -30,6 +30,8 @@ class ReactComp extends Component {
     // considered that the date in question is not yet loaded
     reservations: PropTypes.object,
 
+    keyExtractor: PropTypes.func,
+
     selectedDay: PropTypes.instanceOf(XDate),
     topDay: PropTypes.instanceOf(XDate),
   };
@@ -191,7 +193,7 @@ class ReactComp extends Component {
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={200}
         onMoveShouldSetResponderCapture={() => {this.onListTouch(); return false;}}
-        keyExtractor={(item, index) => index}
+        keyExtractor={this.props.keyExtractor || ((item, index) => index)}
       />
     );
   }
