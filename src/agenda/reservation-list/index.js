@@ -11,7 +11,7 @@ import XDate from 'xdate';
 import dateutils from '../../dateutils';
 import styleConstructor from './style';
 
-class ReactComp extends Component {
+class ReservationList extends Component {
   static propTypes = {
     // specify your item comparison function for increased performance
     rowHasChanged: PropTypes.func,
@@ -199,4 +199,4 @@ class ReactComp extends Component {
   }
 }
 
-export default ReactComp;
+export default ReservationList;

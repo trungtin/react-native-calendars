@@ -58,9 +58,9 @@ class CalendarList extends Component {
     const texts = [];
     const date = parseDate(props.current) || XDate();
     for (let i = 0; i <= this.pastScrollRange + this.futureScrollRange; i++) {
-      const month = date.clone().addMonths(i - this.pastScrollRange);
+      const month = date.clone().addMonths(i - this.pastScrollRange).setDate(1);
       const text = month.toString('MMM yyyy');
-      cachedLayout[i] = getSequentialLayoutByRows(i, date, props.firstDay);
+      cachedLayout[i] = getSequentialLayoutByRows(i, month, props.firstDay);
       indexByMonthYear[month.toString('yyyyMM')] = i;
       rows.push(text);
       texts.push(text);
@@ -178,6 +178,12 @@ class CalendarList extends Component {
     });
   }
 
+  onScrollEndDrag = (e) => {
+    const { y } = e.nativeEvent.contentOffset;
+    const offset = Math.round(y / DEFAULT_WEEK_HEIGHT) * DEFAULT_WEEK_HEIGHT;
+    this.listView.scrollToOffset({offset, animated: true});
+  }
+
   renderCalendar = ({item, index}) => {
     const calendarHeight = cachedLayout[index].length || 0;
     return (<CalendarListItem item={item} calendarHeight={calendarHeight} {...this.props} />);
@@ -195,9 +201,9 @@ class CalendarList extends Component {
 
   render() {
     return (
-      <FlatList
+      <FlatList      
         ref={(c) => this.listView = c}
-        //scrollEventThrottle={1000}
+        scrollEventThrottle={400}
         style={[this.style.container, this.props.style]}
         initialListSize={this.pastScrollRange * this.futureScrollRange + 1}
         data={this.state.rows}
@@ -212,6 +218,8 @@ class CalendarList extends Component {
         keyExtractor={(item, index) => index}
         initialScrollIndex={this.state.openDate ? this.getMonthIndex(this.state.openDate) : false}
         getItemLayout={this.getItemLayout}
+        onScrollEndDrag={this.onScrollEndDrag}
+        // onScrollAnimationEnd={this.onScrollEndDrag}
       />
     );
   }
