@@ -102,9 +102,10 @@ class CalendarList extends Component {
     if (indexInCache) {
       const { offset } = cachedLayout[indexInCache];
       const startOfMonthDay = day.clone().setDate(1).getDay();
-      const offsetDay = 7 - ((startOfMonthDay - this.props.firstDay) || 7); // Day count till first day of first full week
+      const offsetDay = startOfMonthDay - this.props.firstDay; // Number of dates of last month exist in first week of this month
+                                                               // To offset the first day of month back to first day of week
       const date = day.getDate();
-      const diffWeeks = Math.ceil((date - 1 - offsetDay) / 7);
+      const diffWeeks = Math.floor((date + offsetDay - 1) / 7);
       const scrollAmount = offset + diffWeeks * DEFAULT_WEEK_HEIGHT;
       this.listView.scrollToOffset({ offset: scrollAmount, animated });
     }
