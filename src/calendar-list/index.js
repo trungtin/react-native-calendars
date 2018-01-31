@@ -130,19 +130,19 @@ class CalendarList extends Component {
       this.scrollToMonth(nextCurrent);
     }
 
-    const rowclone = this.state.rows;
-    const newrows = [];
-    for (let i = 0; i < rowclone.length; i++) {
-      let val = this.state.texts[i];
-      if (rowclone[i].getTime) {
-        val = rowclone[i].clone();
-        val.propbump = rowclone[i].propbump ? rowclone[i].propbump + 1 : 1;
-      }
-      newrows.push(val);
-    }
-    this.setState({
-      rows: newrows
-    });
+    // const rowclone = this.state.rows;
+    // const newrows = [];
+    // for (let i = 0; i < rowclone.length; i++) {
+    //   let val = this.state.texts[i];
+    //   if (rowclone[i].getTime) {
+    //     val = rowclone[i].clone();
+    //     val.propbump = rowclone[i].propbump ? rowclone[i].propbump + 1 : 1;
+    //   }
+    //   newrows.push(val);
+    // }
+    // this.setState({
+    //   rows: newrows
+    // });
   }
 
   onViewableItemsChanged({viewableItems}) {
@@ -158,6 +158,8 @@ class CalendarList extends Component {
     const rowclone = this.state.rows;
     const newrows = [];
     const visibleMonths = [];
+
+    let hasChanged = false;
     for (let i = 0; i < rowclone.length; i++) {
       let val = rowclone[i];
       const rowShouldBeRendered = rowIsCloseToViewable(i, 1);
@@ -167,16 +169,20 @@ class CalendarList extends Component {
         val = this.state.texts[i];
       }
       newrows.push(val);
+      if (val !== rowclone[i]) hasChanged = true;
+
       if (rowIsCloseToViewable(i, 0)) {
         visibleMonths.push(xdateToData(val));
       }
     }
-    if (this.props.onVisibleMonthsChange) {
-      this.props.onVisibleMonthsChange(visibleMonths);
+    if (hasChanged) {
+      if (this.props.onVisibleMonthsChange) {
+        this.props.onVisibleMonthsChange(visibleMonths);
+      }
+      this.setState({
+        rows: newrows
+      });
     }
-    this.setState({
-      rows: newrows
-    });
   }
 
   onScrollEndDrag = (e) => {
