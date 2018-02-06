@@ -80,14 +80,17 @@ class Day extends Component {
     const marked = this.props.marked || {};
     const dot = this.renderDots(marked);
 
+    if (this.props.state === 'today') {
+      containerStyle.push(this.style.today);
+      textStyle.push(this.style.todayText);
+    }
+    
     if (marked.selected) {
       containerStyle.push(this.style.selected);
       textStyle.push(this.style.selectedText);
     } else if (typeof marked.disabled !== 'undefined' ? marked.disabled : this.props.state === 'disabled') {
       textStyle.push(this.style.disabledText);
-    } else if (this.props.state === 'today') {
-      textStyle.push(this.style.todayText);
-    }
+    } 
     return (
       <TouchableOpacity style={containerStyle} onPress={this.onDayPress}>
         <Text style={textStyle}>{String(this.props.children)}</Text>

@@ -86,18 +86,6 @@ class CalendarList extends Component {
 
   scrollToDay(d, offset, animated) {
     const day = parseDate(d);
-    // const diffMonths = Math.round(this.state.openDate.clone().setDate(1).diffMonths(day.clone().setDate(1)));
-    // const calendarHeight = getCalendarHeight(day, this.props.firstDay);
-    // let scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight) + (offset || 0);
-    // let week = 0;
-    // const days = dateutils.page(day, this.props.firstDay);
-    // for (let i = 0; i < days.length; i++) {
-    //   week = Math.floor(i / 7);
-    //   if (dateutils.sameDate(days[i], day)) {
-    //     scrollAmount += DEFAULT_WEEK_HEIGHT * week;
-    //     break;
-    //   }
-    // }
     const indexInCache = indexByMonthYear[day.toString('yyyyMM')];
     if (indexInCache) {
       const { offset } = cachedLayout[indexInCache];
@@ -130,19 +118,19 @@ class CalendarList extends Component {
       this.scrollToMonth(nextCurrent);
     }
 
-    // const rowclone = this.state.rows;
-    // const newrows = [];
-    // for (let i = 0; i < rowclone.length; i++) {
-    //   let val = this.state.texts[i];
-    //   if (rowclone[i].getTime) {
-    //     val = rowclone[i].clone();
-    //     val.propbump = rowclone[i].propbump ? rowclone[i].propbump + 1 : 1;
-    //   }
-    //   newrows.push(val);
-    // }
-    // this.setState({
-    //   rows: newrows
-    // });
+    const rowclone = this.state.rows;
+    const newrows = [];
+    for (let i = 0; i < rowclone.length; i++) {
+      let val = this.state.texts[i];
+      if (rowclone[i].getTime) {
+        val = rowclone[i].clone();
+        val.propbump = rowclone[i].propbump ? rowclone[i].propbump + 1 : 1;
+      }
+      newrows.push(val);
+    }
+    this.setState({
+      rows: newrows
+    });
   }
 
   onViewableItemsChanged({viewableItems}) {
