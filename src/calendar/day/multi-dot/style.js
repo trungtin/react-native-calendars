@@ -11,6 +11,11 @@ export default function styleConstructor(theme={}) {
       height: 32,
       alignItems: 'center'
     },
+    date: {
+      width: 32,
+      height: 32,
+      alignItems: 'center',
+    },
     text: {
       marginTop: 4,
       fontSize: appStyle.textDayFontSize,

@@ -75,25 +75,28 @@ class Day extends Component {
 
   render() {
     const containerStyle = [this.style.base];
+    const dateStyle = [this.style.date];
     const textStyle = [this.style.text];
 
     const marked = this.props.marked || {};
     const dot = this.renderDots(marked);
 
     if (this.props.state === 'today') {
-      containerStyle.push(this.style.today);
+      dateStyle.push(this.style.today);
       textStyle.push(this.style.todayText);
     }
     
     if (marked.selected) {
-      containerStyle.push(this.style.selected);
+      dateStyle.push(this.style.selected);
       textStyle.push(this.style.selectedText);
     } else if (typeof marked.disabled !== 'undefined' ? marked.disabled : this.props.state === 'disabled') {
       textStyle.push(this.style.disabledText);
     } 
     return (
       <TouchableOpacity style={containerStyle} onPress={this.onDayPress}>
-        <Text style={textStyle}>{String(this.props.children)}</Text>
+        <View style={dateStyle}>
+          <Text style={textStyle}>{String(this.props.children)}</Text>
+        </View>
         <View style={{flexDirection: 'row'}}>{dot}</View>
       </TouchableOpacity>
     );
